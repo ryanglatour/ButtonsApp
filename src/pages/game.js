@@ -3,9 +3,10 @@ import Dot from '../components/dot'
 import Stopwatch from '../components/stopwatch'
 import Survey from '../components/survey'
 import { ExperimentProvider, useExperiment } from '../context/experimentContext'
+import red from '../images/redcircle.png'
 
 function Game() {
-    const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause } = useExperiment()
+    const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot } = useExperiment()
     const [dots, setDots] = useState([])
     const [survey, setSurvey] = useState([])
 
@@ -16,6 +17,7 @@ function Game() {
             resetExperiment()
             pause()
             setSurvey([])
+            setSelectedDot(null)
         }
         else { // Start experiment
             placeDots()
@@ -85,15 +87,16 @@ function Game() {
             positionX = {pos.positionX}
             positionY = {pos.positionY}
             correct = {pos.correct}
-            onClick={() => dotClicked(pos.correct)}
+            index = {index}
+            onClick={() => dotClicked(index, pos.correct)}
           />
         ))
         setDots(newDots)
     }
 
-    const dotClicked = (correct) => {
-        
-        console.log(correct)
+    const dotClicked = (index, correct) => {
+        setSelectedDot(index)
+        console.log(index + " " + correct)
 
     }
 
@@ -116,6 +119,7 @@ function Game() {
                 unpause()
                 placeDots()
                 setSurvey([])
+                setSelectedDot(null)
             }
             
           }
@@ -142,6 +146,16 @@ function Game() {
             </nav>
 
             <div>
+                {!paused && activeExperiment && <img src = {red}
+                alt="red" 
+                style={{
+                    position: 'absolute',
+                    left: `${window.innerWidth / 2}px`,
+                    top: `${window.innerHeight / 2}px`,
+                    height: '50px',
+                    width: '50px'
+                  }}
+                  />}
                 {dots}
                 {survey}
             </div>

@@ -9,6 +9,7 @@ export const useExperiment = () => {
 export const ExperimentProvider = ({ children }) => {
   const [activeExperiment, setActiveExperiment] = useState(false);
   const [paused, setPaused] = useState(false)
+  const [selectedDot, setSelectedDot] = useState(null)
 
   const startExperiment = () => setActiveExperiment(true);
   const resetExperiment = () => setActiveExperiment(false);
@@ -17,7 +18,7 @@ export const ExperimentProvider = ({ children }) => {
   const unpause = () => setPaused(false)
 
   return (
-    <ExperimentContext.Provider value={{ activeExperiment, startExperiment, resetExperiment, paused, pause, unpause}}>
+    <ExperimentContext.Provider value={{ activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot}}>
       {children}
     </ExperimentContext.Provider>
   );

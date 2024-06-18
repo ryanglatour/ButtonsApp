@@ -8,22 +8,19 @@ function Stopwatch () {
     const startTimeRef = useRef(0)
 
     useEffect(() => {
-        if (!activeExperiment) {
-            setElapsedTime(0)
-            startTimeRef.current = Date.now()
-        }
-
         if (activeExperiment && !paused) {
+            startTimeRef.current = Date.now() - elapsedTime;
             intervalIdRef.current = setInterval(() => {
-                setElapsedTime(Date.now() - startTimeRef.current)
-            }, 10)
+                setElapsedTime(Date.now() - startTimeRef.current);
+            }, 10);
+        } else {
+            clearInterval(intervalIdRef.current);
         }
-        
 
         return () => {
-            clearInterval(intervalIdRef.current)
-        }
-    }, [activeExperiment, paused])
+            clearInterval(intervalIdRef.current);
+        };
+    }, [activeExperiment, paused]);
 
     function formatTime(){
         let minutes = Math.floor(elapsedTime / (1000 * 60) % 60)
