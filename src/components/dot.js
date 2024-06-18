@@ -8,8 +8,8 @@ const Dot = ({positionX, positionY, correct, onClick}) => {
                 position: 'absolute',
                 left: `${positionX}px`,
                 top: `${positionY}px`,
-                height: '40px',
-                width: '40px'
+                height: '50px',
+                width: '50px'
               }}
               onClick={onClick}
               />

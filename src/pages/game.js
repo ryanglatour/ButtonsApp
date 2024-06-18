@@ -1,11 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react'
 import Dot from '../components/dot'
 import Stopwatch from '../components/stopwatch'
+import Survey from '../components/survey'
 import { ExperimentProvider, useExperiment } from '../context/experimentContext'
 
 function Game() {
     const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause } = useExperiment()
     const [dots, setDots] = useState([])
+    const [survey, setSurvey] = useState([])
 
     const startendExperiment = () => {
         console.log(activeExperiment)
@@ -13,7 +15,7 @@ function Game() {
             setDots([])
             resetExperiment()
             pause()
-            
+            setSurvey([])
         }
         else { // Start experiment
             placeDots()
@@ -28,10 +30,38 @@ function Game() {
         const windowCenterX = window.innerWidth / 2
         const windowCenterY = window.innerHeight / 2
         const dotPositions = [];
-        dotPositions.push({positionX: windowCenterX + 100, positionY: windowCenterY + 100, correct: false})
-        dotPositions.push({positionX: windowCenterX + 100, positionY: windowCenterY - 100, correct: false}) // This one
-        dotPositions.push({positionX: windowCenterX - 10, positionY: windowCenterY + 10, correct: false})
-        dotPositions.push({positionX: windowCenterX - 150, positionY: windowCenterY - 150, correct: false})
+        
+
+        const radMin = (1/3)
+        const radMax = (3/4)
+        const offset = (2/10) * Math.sqrt(
+            Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2)
+        )
+        console.log(offset)
+        // Top left
+        dotPositions.push({
+            positionX: windowCenterX - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            positionY: windowCenterY - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            correct: false
+        })
+        // Top right
+        dotPositions.push({
+            positionX: windowCenterX + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            positionY: windowCenterY - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            correct: false
+        })
+        // Bottom Left
+        dotPositions.push({
+            positionX: windowCenterX - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            positionY: windowCenterY + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            correct: false
+        })
+        // Bottom right
+        dotPositions.push({
+            positionX: windowCenterX + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            positionY: windowCenterY + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            correct: false
+        })
 
         let closestDot = 0
         let closestDistance = 100000
@@ -49,9 +79,6 @@ function Game() {
         
         console.log(dotPositions)
         
-      
-        
-
         const newDots = dotPositions.map((pos, index) => (
           <Dot 
             key = {index}
@@ -67,14 +94,30 @@ function Game() {
     const dotClicked = (correct) => {
         
         console.log(correct)
+
+    }
+
+    const surveyClicked = (answer) => {
+        console.log(answer)
     }
 
     // detect space bar
     useEffect(() => {
         const handleEsc = (event) => {
            if (event.key === ' ' && activeExperiment) {
-            pause()
-            console.log(event.key)
+            console.log(event.key + " " + paused)
+            if (!paused) {
+                pause()
+                setDots([])
+                const survey = <Survey onClick={surveyClicked}/>
+                setSurvey(survey)
+            }
+            else {
+                unpause()
+                placeDots()
+                setSurvey([])
+            }
+            
           }
         };
         window.addEventListener('keydown', handleEsc);
@@ -82,7 +125,7 @@ function Game() {
         return () => {
           window.removeEventListener('keydown', handleEsc);
         };
-      }, [activeExperiment]);
+      }, [activeExperiment, paused]);
 
 
     return (
@@ -100,6 +143,7 @@ function Game() {
 
             <div>
                 {dots}
+                {survey}
             </div>
         </div>
     );
