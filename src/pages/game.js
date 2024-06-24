@@ -6,7 +6,7 @@ import { ExperimentProvider, useExperiment } from '../context/experimentContext'
 import red from '../images/redcircle.png'
 
 function Game() {
-    const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot } = useExperiment()
+    const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot} = useExperiment()
     const [dots, setDots] = useState([])
     const [survey, setSurvey] = useState([])
 
@@ -88,17 +88,44 @@ function Game() {
             positionY = {pos.positionY}
             correct = {pos.correct}
             index = {index}
-            onClick={() => dotClicked(index, pos.correct)}
+            //onClick={() => dotClicked(index, pos.correct)}
           />
         ))
         setDots(newDots)
     }
 
-    const dotClicked = (index, correct) => {
-        setSelectedDot(index)
-        console.log(index + " " + correct)
+    const handleCanvasClick = (event) => {
+        const clickX = event.clientX;
+        const clickY = event.clientY;
+        let closestDot = null;
+        let minDistance = Infinity;
 
-    }
+        if (clickY < 75) return
+    
+        dots.forEach(dot => {
+          const dotX = dot.props.positionX + 25; // Adjust for center of the dot
+          const dotY = dot.props.positionY + 25; // Adjust for center of the dot
+          const distance = Math.sqrt(Math.pow(dotX - clickX, 2) + Math.pow(dotY - clickY, 2));
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestDot = dot;
+          }
+        });
+    
+        if (closestDot && selectedDot === null) {
+          setSelectedDot(closestDot.props.index);
+          
+        }
+      };
+
+      useEffect(() => {
+        if (activeExperiment) {
+          window.addEventListener('click', handleCanvasClick);
+        }
+        return () => {
+          window.removeEventListener('click', handleCanvasClick);
+        };
+      }, [dots, activeExperiment, selectedDot]);
 
     const surveyClicked = (answer) => {
         console.log(answer)
@@ -108,12 +135,14 @@ function Game() {
     useEffect(() => {
         const handleEsc = (event) => {
            if (event.key === ' ' && activeExperiment) {
-            console.log(event.key + " " + paused)
+            
             if (!paused) {
                 pause()
+                console.log(dots[selectedDot].props.correct)
                 setDots([])
                 const survey = <Survey onClick={surveyClicked}/>
                 setSurvey(survey)
+                
             }
             else {
                 unpause()
@@ -129,8 +158,9 @@ function Game() {
         return () => {
           window.removeEventListener('keydown', handleEsc);
         };
-      }, [activeExperiment, paused]);
+      }, [activeExperiment, paused, selectedDot]);
 
+     
 
     return (
         <div>
@@ -139,6 +169,7 @@ function Game() {
                  style = {{backgroundColor: activeExperiment ? 'red' : 'green'}}>
                     {activeExperiment ? 'End Experiment' : 'Start Experiment'}
                 </button>
+
                 
                 <div className="stopwatch">
                     Timer: {<Stopwatch/>}

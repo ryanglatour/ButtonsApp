@@ -1,22 +1,19 @@
 import green from '../images/greencircle.png'
 import outline from '../images/greencircleoutline.png'
-import { ExperimentProvider, useExperiment } from '../context/experimentContext'
-import React, { useRef, useEffect, useState } from 'react'
+import { useExperiment } from '../context/experimentContext'
+import React, { useEffect} from 'react'
 
 const Dot = ({positionX, positionY, correct, index, onClick}) => {
-    const { selectedDot } = useExperiment()
+    const { selectedDot, setSelectedDot } = useExperiment()
     
-    useEffect(() => {
-        
-    
-        return () => {
-          
-        };
-      }, [selectedDot]);
+    /*const updateSelection = () => {
+        if (selectedDot === null)
+            setSelectedDot(index)
+    }*/
 
     return(
         <div>
-            <img src={selectedDot == index ? outline : green}
+            <img src={selectedDot === index ? outline : green}
             alt="green" 
             style={{
                 position: 'absolute',
@@ -25,7 +22,7 @@ const Dot = ({positionX, positionY, correct, index, onClick}) => {
                 height: '50px',
                 width: '50px'
               }}
-              onClick={onClick}
+              //onClick={updateSelection}
               />
         </div>
     )
