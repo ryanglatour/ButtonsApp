@@ -9,21 +9,30 @@ function Game() {
     const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot} = useExperiment()
     const [dots, setDots] = useState([])
     const [survey, setSurvey] = useState([])
+    const [practice, setPractice] = useState(true)
+    const [log, setLog] = useState("")
 
     const startendExperiment = () => {
         console.log(activeExperiment)
         if (activeExperiment) { // Stop experiment
+            if (practice)
+              updateLog("end practice")
+            else updateLog("end experiment")
+            setPractice(false)
             setDots([])
             resetExperiment()
             pause()
             setSurvey([])
             setSelectedDot(null)
+            
         }
         else { // Start experiment
+            if (practice)
+              updateLog("start practice")
+            else updateLog("start experiment")
             placeDots()
             startExperiment()
             unpause()
-            
         }
     }
 
@@ -67,7 +76,9 @@ function Game() {
 
         let closestDot = 0
         let closestDistance = 100000
+        let pointString = ""
         dotPositions.forEach ((dot, index) => {
+            pointString += `(${dot.positionX.toFixed(2)}, ${dot.positionY.toFixed(2)}), `
             let distance = Math.sqrt(
                 Math.pow(dot.positionX - windowCenterX, 2) + Math.pow(dot.positionY - windowCenterY, 2)
             );
@@ -77,6 +88,8 @@ function Game() {
             }
         })
 
+        pointString = pointString.slice(0, -2)
+        updateLog(`generate random points: ${pointString}`)
         dotPositions[closestDot].correct = true
         
         console.log(dotPositions)
@@ -114,7 +127,7 @@ function Game() {
     
         if (closestDot && selectedDot === null) {
           setSelectedDot(closestDot.props.index);
-          
+          updateLog(`user clicked: (${clickX}, ${clickY}), selecting (${closestDot.props.positionX.toFixed(2)}, ${closestDot.props.positionY.toFixed(2)})`)
         }
       };
 
@@ -128,7 +141,7 @@ function Game() {
       }, [dots, activeExperiment, selectedDot]);
 
     const surveyClicked = (answer) => {
-        console.log(answer)
+        updateLog(`user selected confidence ${answer}`)
     }
 
     // detect space bar
@@ -145,6 +158,7 @@ function Game() {
                 
             }
             else {
+                updateLog("user clicked next")
                 unpause()
                 placeDots()
                 setSurvey([])
@@ -160,6 +174,18 @@ function Game() {
         };
       }, [activeExperiment, paused, selectedDot]);
 
+      const updateLog = (line) => {
+        setLog((prevLog) => prevLog + `<${Date.now()}> ` + line + "\n")
+      }
+
+      const generateReport = () => {
+        const blob = new Blob([log], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = `${Date.now()}.txt`;
+        link.href = url;
+        link.click()
+      }
      
 
     return (
@@ -167,8 +193,21 @@ function Game() {
             <nav className="navbar">
                 <button className="experiment-button" onClick = {startendExperiment}
                  style = {{backgroundColor: activeExperiment ? 'red' : 'green'}}>
-                    {activeExperiment ? 'End Experiment' : 'Start Experiment'}
+                    {(activeExperiment && practice) 
+                    ? 'End Practice'
+                    : (!activeExperiment && practice) 
+                    ? 'Start Practice'
+                    : (activeExperiment && !practice)
+                    ? 'End Experiment'
+                    : 'Start Experiment'
+                  }
                 </button>
+                {!activeExperiment && !practice && <button className="experiment-button" onClick = {generateReport}
+                style = {{backgroundColor: 'black', 
+                  position: 'absolute',
+                  left: '50%', 
+                  transform: 'translate(-50%)'}}>
+                  Generate Report</button>}
 
                 
                 <div className="stopwatch">
@@ -181,8 +220,8 @@ function Game() {
                 alt="red" 
                 style={{
                     position: 'absolute',
-                    left: `${window.innerWidth / 2}px`,
-                    top: `${window.innerHeight / 2}px`,
+                    left: `${(window.innerWidth / 2) - 25}px`,
+                    top: `${(window.innerHeight / 2) - 25}px`,
                     height: '50px',
                     width: '50px'
                   }}
