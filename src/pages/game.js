@@ -11,6 +11,56 @@ function Game() {
     const [survey, setSurvey] = useState([])
     const [practice, setPractice] = useState(true)
     const [log, setLog] = useState("")
+    const [jsonLog, setJsonLog] = useState([])
+
+    const [userID, setUserID] = useState(0)
+    const [timeStart, setTimeStart] = useState(Date.now())
+    const [timeSelected, setTimeSelected] = useState(Date.now())
+    const [screenTouchLocation, setScreenTouchLocation] = useState([])
+
+    const handleAddJsonObject = () => {
+      let randomPoints = []
+      let distances = []
+      dots.forEach ((dot, index) => {
+        randomPoints.push([parseFloat(dot.props.positionX.toFixed(2)), parseFloat(dot.props.positionY.toFixed(2))])
+        distances.push(parseFloat(dot.props.distance.toFixed(2)))
+      })
+
+      let isCorrect = -1
+      if (dots && selectedDot) isCorrect = dots[selectedDot].props.correct
+      
+      randomPoints.slice(0, -2)
+
+      const newObject = {
+        userID: userID,
+        currentPhase: practice ? "practice" : "experiment",
+        timeStart: timeStart,
+        randomPoints: randomPoints,
+        randomPointDists: distances,
+        timeSelectPoint: timeSelected,
+        screenTouchLocation: screenTouchLocation,
+        pointSelected: selectedDot,
+        isCorrect: isCorrect
+      }
+      setJsonLog((prevObjects) => [...prevObjects, newObject])
+    };
+
+    /*
+    userID: <userID>
+currentPhase: practice / experiment
+timeStart: t
+randomPoints:[(f,f),(f,f),(f,f),(f,f)]
+randomPointDists:[f,f,f,f]
+timeSelectPoint: t
+screenTouchLocation:(f,f)
+pointSelected: i [0,1,2,3]
+isCorrect:bool
+timeClickNext1:t
+timeSelectConfidence: t
+confidenceSelected: i [1,2,3,4,5]
+timeClickNext2:t
+*/
+
 
     const startendExperiment = () => {
         console.log(activeExperiment)
@@ -53,25 +103,29 @@ function Game() {
         dotPositions.push({
             positionX: windowCenterX - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
             positionY: windowCenterY - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            correct: false
+            correct: false,
+            distance: 0
         })
         // Top right
         dotPositions.push({
             positionX: windowCenterX + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
             positionY: windowCenterY - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            correct: false
+            correct: false,
+            distance: 0
         })
         // Bottom Left
         dotPositions.push({
             positionX: windowCenterX - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
             positionY: windowCenterY + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            correct: false
+            correct: false,
+            distance: 0
         })
         // Bottom right
         dotPositions.push({
             positionX: windowCenterX + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
             positionY: windowCenterY + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            correct: false
+            correct: false,
+            distance: 0
         })
 
         let closestDot = 0
@@ -82,6 +136,7 @@ function Game() {
             let distance = Math.sqrt(
                 Math.pow(dot.positionX - windowCenterX, 2) + Math.pow(dot.positionY - windowCenterY, 2)
             );
+            dotPositions[index].distance = distance
             if (distance < closestDistance) {
                 closestDot = index
                 closestDistance = distance
@@ -100,6 +155,7 @@ function Game() {
             positionX = {pos.positionX}
             positionY = {pos.positionY}
             correct = {pos.correct}
+            distance = {pos.distance}
             index = {index}
             //onClick={() => dotClicked(index, pos.correct)}
           />
@@ -110,6 +166,8 @@ function Game() {
     const handleCanvasClick = (event) => {
         const clickX = event.clientX;
         const clickY = event.clientY;
+        setScreenTouchLocation([clickX, clickY])
+
         let closestDot = null;
         let minDistance = Infinity;
 
@@ -127,6 +185,7 @@ function Game() {
     
         if (closestDot && selectedDot === null) {
           setSelectedDot(closestDot.props.index);
+          setTimeSelected(Date.now())
           updateLog(`user clicked: (${clickX}, ${clickY}), selecting (${closestDot.props.positionX.toFixed(2)}, ${closestDot.props.positionY.toFixed(2)})`)
         }
       };
@@ -176,15 +235,25 @@ function Game() {
 
       const updateLog = (line) => {
         setLog((prevLog) => prevLog + `<${Date.now()}> ` + line + "\n")
+        handleAddJsonObject()
       }
 
       const generateReport = () => {
-        const blob = new Blob([log], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.download = `${Date.now()}.txt`;
-        link.href = url;
+        const blob = new Blob([log], { type: "text/plain" })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+
+        link.download = `${Date.now()}.txt`
+        link.href = url
         link.click()
+
+        const jsonString = JSON.stringify(jsonLog, null, 2)
+        const jsonBlob = new Blob([jsonString], { type: 'application/json' })
+        const jsonUrl = URL.createObjectURL(jsonBlob)
+        const jsonLink = document.createElement('a')
+        jsonLink.download = `${Date.now()}.json`
+        jsonLink.href = jsonUrl
+        jsonLink.click()
       }
      
 
