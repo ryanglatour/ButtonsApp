@@ -17,49 +17,10 @@ function Game() {
     const [timeStart, setTimeStart] = useState(Date.now())
     const [timeSelected, setTimeSelected] = useState(Date.now())
     const [screenTouchLocation, setScreenTouchLocation] = useState([])
-
-    const handleAddJsonObject = () => {
-      let randomPoints = []
-      let distances = []
-      dots.forEach ((dot, index) => {
-        randomPoints.push([parseFloat(dot.props.positionX.toFixed(2)), parseFloat(dot.props.positionY.toFixed(2))])
-        distances.push(parseFloat(dot.props.distance.toFixed(2)))
-      })
-
-      let isCorrect = -1
-      if (dots && selectedDot) isCorrect = dots[selectedDot].props.correct
-      
-      randomPoints.slice(0, -2)
-
-      const newObject = {
-        userID: userID,
-        currentPhase: practice ? "practice" : "experiment",
-        timeStart: timeStart,
-        randomPoints: randomPoints,
-        randomPointDists: distances,
-        timeSelectPoint: timeSelected,
-        screenTouchLocation: screenTouchLocation,
-        pointSelected: selectedDot,
-        isCorrect: isCorrect
-      }
-      setJsonLog((prevObjects) => [...prevObjects, newObject])
-    };
-
-    /*
-    userID: <userID>
-currentPhase: practice / experiment
-timeStart: t
-randomPoints:[(f,f),(f,f),(f,f),(f,f)]
-randomPointDists:[f,f,f,f]
-timeSelectPoint: t
-screenTouchLocation:(f,f)
-pointSelected: i [0,1,2,3]
-isCorrect:bool
-timeClickNext1:t
-timeSelectConfidence: t
-confidenceSelected: i [1,2,3,4,5]
-timeClickNext2:t
-*/
+    const [timeClickNext1, setTimeClickNext1] = useState(null)
+    const [timeSelectConfidence, setTimeSelectConfidence] = useState(null)
+    const [timeClickNext2, setTimeClickNext2] = useState(null)
+    const [confidenceSelected, setConfidenceSelected] = useState(null)
 
 
     const startendExperiment = () => {
@@ -83,6 +44,7 @@ timeClickNext2:t
             placeDots()
             startExperiment()
             unpause()
+            setTimeStart(Date.now())
         }
     }
 
@@ -200,6 +162,8 @@ timeClickNext2:t
       }, [dots, activeExperiment, selectedDot]);
 
     const surveyClicked = (answer) => {
+        setConfidenceSelected(answer)
+        setTimeSelectConfidence(Date.now())
         updateLog(`user selected confidence ${answer}`)
     }
 
@@ -209,6 +173,8 @@ timeClickNext2:t
            if (event.key === ' ' && activeExperiment) {
             
             if (!paused) {
+                setTimeClickNext1(Date.now())
+                updateLog("user clicked next")
                 pause()
                 console.log(dots[selectedDot].props.correct)
                 setDots([])
@@ -217,11 +183,13 @@ timeClickNext2:t
                 
             }
             else {
+                setTimeClickNext2(Date.now())
                 updateLog("user clicked next")
                 unpause()
                 placeDots()
                 setSurvey([])
                 setSelectedDot(null)
+
             }
             
           }
@@ -233,9 +201,48 @@ timeClickNext2:t
         };
       }, [activeExperiment, paused, selectedDot]);
 
+
+
+      const handleAddJsonObject = (message) => {
+        let randomPoints = []
+        let distances = []
+        dots.forEach ((dot, index) => {
+          randomPoints.push([parseFloat(dot.props.positionX.toFixed(2)), parseFloat(dot.props.positionY.toFixed(2))])
+          distances.push(parseFloat(dot.props.distance.toFixed(2)))
+        })
+  
+        let isCorrect = -1
+        if (dots.length > 0 && selectedDot) isCorrect = dots[selectedDot].props.correct
+        
+        randomPoints.slice(0, -2)
+  
+        const newObject = {
+          message: message,
+          userID: userID,
+          currentPhase: practice ? "practice" : "experiment",
+          timeStart: timeStart,
+          randomPoints: randomPoints,
+          randomPointDists: distances,
+          timeSelectPoint: timeSelected,
+          screenTouchLocation: screenTouchLocation,
+          pointSelected: selectedDot,
+          isCorrect: isCorrect,
+          timeClickNext1: timeClickNext1,
+          timeSelectConfidence: timeSelectConfidence,
+          confidenceSelected: confidenceSelected,
+          timeClickNext2: timeClickNext2
+        }
+        setJsonLog((prevObjects) => [...prevObjects, newObject])
+      };
+
+      // JSON use effects
+      useEffect(() => {
+        if(log !== "") handleAddJsonObject(log.substring(log.lastIndexOf("<")))
+      }, [log])
+
+
       const updateLog = (line) => {
         setLog((prevLog) => prevLog + `<${Date.now()}> ` + line + "\n")
-        handleAddJsonObject()
       }
 
       const generateReport = () => {
