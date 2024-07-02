@@ -4,16 +4,16 @@ import Stopwatch from '../components/stopwatch'
 import Survey from '../components/survey'
 import { ExperimentProvider, useExperiment } from '../context/experimentContext'
 import red from '../images/redcircle.png'
+import IDModal from '../components/idmodal'
 
 function Game() {
-    const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot} = useExperiment()
+    const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot, id} = useExperiment()
     const [dots, setDots] = useState([])
     const [survey, setSurvey] = useState([])
     const [practice, setPractice] = useState(true)
     const [log, setLog] = useState("")
     const [jsonLog, setJsonLog] = useState([])
 
-    const [userID, setUserID] = useState(0)
     const [timeStart, setTimeStart] = useState(Date.now())
     const [timeSelected, setTimeSelected] = useState(Date.now())
     const [screenTouchLocation, setScreenTouchLocation] = useState([])
@@ -225,7 +225,7 @@ function Game() {
   
         const newObject = {
           message: message,
-          userID: userID,
+          userID: id,
           currentPhase: practice ? "practice" : "experiment",
           timeStart: timeStart,
           randomPoints: randomPoints,
@@ -273,6 +273,7 @@ function Game() {
 
     return (
         <div>
+          
             <nav className="navbar">
                 <button className="experiment-button" onClick = {startendExperiment}
                  style = {{backgroundColor: activeExperiment ? 'red' : 'green'}}>
@@ -311,6 +312,7 @@ function Game() {
                   />}
                 {dots}
                 {survey}
+                <IDModal></IDModal>
             </div>
         </div>
     );
