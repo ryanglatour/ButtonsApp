@@ -41,7 +41,9 @@ function Game() {
             if (practice)
               updateLog("start practice")
             else updateLog("start experiment")
-            placeDots()
+            setTimeout(() => {
+              placeDots(); // This will trigger the second render and useEffect call
+            }, 0); // Setting a timeout with 0 ms delay to ensure the state update is separated
             startExperiment()
             unpause()
             setTimeStart(Date.now())
@@ -128,7 +130,6 @@ function Game() {
     const handleCanvasClick = (event) => {
         const clickX = event.clientX;
         const clickY = event.clientY;
-        setScreenTouchLocation([clickX, clickY])
 
         let closestDot = null;
         let minDistance = Infinity;
@@ -146,8 +147,10 @@ function Game() {
         });
     
         if (closestDot && selectedDot === null) {
+          setScreenTouchLocation([clickX, clickY])
           setSelectedDot(closestDot.props.index);
           setTimeSelected(Date.now())
+          //pause()
           updateLog(`user clicked: (${clickX}, ${clickY}), selecting (${closestDot.props.positionX.toFixed(2)}, ${closestDot.props.positionY.toFixed(2)})`)
         }
       };
@@ -171,8 +174,10 @@ function Game() {
     useEffect(() => {
         const handleEsc = (event) => {
            if (event.key === ' ' && activeExperiment) {
-            
-            if (!paused) {
+            if (selectedDot == null) {
+              //console.log(selectedDot)
+            }
+            else if (!paused) {
                 setTimeClickNext1(Date.now())
                 updateLog("user clicked next")
                 pause()
@@ -186,7 +191,9 @@ function Game() {
                 setTimeClickNext2(Date.now())
                 updateLog("user clicked next")
                 unpause()
-                placeDots()
+                setTimeout(() => {
+                  placeDots(1); // This will trigger the second render and useEffect call
+                }, 0); // Setting a timeout with 0 ms delay to ensure the state update is separated
                 setSurvey([])
                 setSelectedDot(null)
 

@@ -2,13 +2,14 @@ import React, { useRef, useEffect, useState} from 'react'
 import { useExperiment } from '../context/experimentContext'
 
 function Stopwatch () {
-    const { activeExperiment, paused } = useExperiment();
+    const { activeExperiment, paused, selectedDot } = useExperiment();
     const [elapsedTime, setElapsedTime] = useState(0)
     const intervalIdRef = useRef(null)
     const startTimeRef = useRef(0)
 
     useEffect(() => {
-        if (activeExperiment && !paused) {
+        if (!activeExperiment) setElapsedTime(0)
+        if (activeExperiment && !paused && selectedDot == null) {
             startTimeRef.current = Date.now() - elapsedTime;
             intervalIdRef.current = setInterval(() => {
                 setElapsedTime(Date.now() - startTimeRef.current);
@@ -20,7 +21,7 @@ function Stopwatch () {
         return () => {
             clearInterval(intervalIdRef.current);
         };
-    }, [activeExperiment, paused]);
+    }, [activeExperiment, paused, selectedDot]);
 
     function formatTime(){
         let minutes = Math.floor(elapsedTime / (1000 * 60) % 60)
