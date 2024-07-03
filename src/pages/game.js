@@ -21,6 +21,7 @@ function Game() {
     const [timeSelectConfidence, setTimeSelectConfidence] = useState(null)
     const [timeClickNext2, setTimeClickNext2] = useState(null)
     const [confidenceSelected, setConfidenceSelected] = useState(null)
+    const [isCorrect, setIsCorrect] = useState(null)
 
 
     const startendExperiment = () => {
@@ -28,7 +29,10 @@ function Game() {
         if (activeExperiment) { // Stop experiment
             if (practice)
               updateLog("end practice")
-            else updateLog("end experiment")
+            else {
+              updateLog("end experiment")
+              generateReport()
+            }
             setPractice(false)
             setDots([])
             resetExperiment()
@@ -55,41 +59,41 @@ function Game() {
         const windowCenterX = window.innerWidth / 2
         const windowCenterY = window.innerHeight / 2
         const dotPositions = [];
+        const dotCount = 5
         
-
         const radMin = (1/3)
         const radMax = (3/4)
-        const offset = (2/10) * Math.sqrt(
+        const uniform = (radMin, radMax) => Math.random() * (radMax - radMin) + radMin;
+        const rads = Array.from({ length: dotCount }, () => uniform(4, 10))
+        const angStepSize = 2 * Math.PI / dotCount;
+
+        let firstAng;
+
+        if (dotCount % 2 === 0) {
+          firstAng = Math.PI / 2 - angStepSize / 2
+        } else {
+          firstAng = Math.PI / 2
+        }
+
+        const angs = Array.from({ length: dotCount }, (_, n) => firstAng + n * angStepSize);
+        const pts = rads.map((r, i) => [r * Math.cos(angs[i]), r * Math.sin(angs[i])]);
+        const xs = pts.map(pt => pt[0]);
+        const ys = pts.map(pt => pt[1]);
+
+        console.log(rads);
+        console.log(angs.map(a => a * 180 / Math.PI));
+
+        const offset = (1/70) * Math.sqrt(
             Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2)
         )
-        console.log(offset)
-        // Top left
-        dotPositions.push({
-            positionX: windowCenterX - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            positionY: windowCenterY - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+        
+        pts.forEach((pt, index) => {
+          dotPositions.push({
+            positionX: windowCenterX -25 - (xs[index] * offset),//(offset * ((Math.random() * (radMax-radMin)) + (radMin))),
+            positionY: windowCenterY -25 - (ys[index] * offset),//(offset * ((Math.random() * (radMax-radMin)) + (radMin))),
             correct: false,
             distance: 0
         })
-        // Top right
-        dotPositions.push({
-            positionX: windowCenterX + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            positionY: windowCenterY - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            correct: false,
-            distance: 0
-        })
-        // Bottom Left
-        dotPositions.push({
-            positionX: windowCenterX - (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            positionY: windowCenterY + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            correct: false,
-            distance: 0
-        })
-        // Bottom right
-        dotPositions.push({
-            positionX: windowCenterX + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            positionY: windowCenterY + (offset * ((Math.random() * (radMax-radMin)) + (radMin))),
-            correct: false,
-            distance: 0
         })
 
         let closestDot = 0
@@ -150,6 +154,7 @@ function Game() {
           setScreenTouchLocation([clickX, clickY])
           setSelectedDot(closestDot.props.index);
           setTimeSelected(Date.now())
+          setIsCorrect(closestDot.props.correct)
           //pause()
           updateLog(`user clicked: (${clickX}, ${clickY}), selecting (${closestDot.props.positionX.toFixed(2)}, ${closestDot.props.positionY.toFixed(2)})`)
         }
@@ -196,7 +201,7 @@ function Game() {
                 }, 0); // Setting a timeout with 0 ms delay to ensure the state update is separated
                 setSurvey([])
                 setSelectedDot(null)
-
+                setIsCorrect(null)
             }
             
           }
@@ -217,9 +222,6 @@ function Game() {
           randomPoints.push([parseFloat(dot.props.positionX.toFixed(2)), parseFloat(dot.props.positionY.toFixed(2))])
           distances.push(parseFloat(dot.props.distance.toFixed(2)))
         })
-  
-        let isCorrect = -1
-        if (dots.length > 0 && selectedDot) isCorrect = dots[selectedDot].props.correct
         
         randomPoints.slice(0, -2)
   
@@ -286,14 +288,7 @@ function Game() {
                     : 'Start Experiment'
                   }
                 </button>
-                {!activeExperiment && !practice && <button className="experiment-button" onClick = {generateReport}
-                style = {{backgroundColor: 'black', 
-                  position: 'absolute',
-                  left: '50%', 
-                  transform: 'translate(-50%)'}}>
-                  Generate Report</button>}
 
-                
                 <div className="stopwatch">
                     Timer: {<Stopwatch/>}
                 </div>
@@ -317,5 +312,5 @@ function Game() {
         </div>
     );
   }
-
+//<IDModal></IDModal>
 export default Game
