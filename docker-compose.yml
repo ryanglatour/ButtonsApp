@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: dotsurvey-backend
+    container_name: dotsurvey-backend-container
+    volumes:
+      - ./backend:/app
+      - ./frontend/build:/app/public
+    ports:
+      - "5000:5000"
+    command: node server.js
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: dotsurvey-frontend
+    container_name: dotsurvey-frontend-container
+    volumes:
+      - ./frontend:/app
+    command: npm start
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
