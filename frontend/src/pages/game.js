@@ -23,6 +23,7 @@ function Game() {
     const [confidenceSelected, setConfidenceSelected] = useState(null)
     const [isCorrect, setIsCorrect] = useState(null)
 
+    console.log(process.env.REACT_APP_API_URL)
 
     const startendExperiment = () => {
         console.log(activeExperiment)
@@ -256,20 +257,32 @@ function Game() {
 
       const generateReport = () => {
         const blob = new Blob([log], { type: "text/plain" })
-        const url = URL.createObjectURL(blob)
+        /*const url = URL.createObjectURL(blob)
         const link = document.createElement("a")
 
         link.download = `${Date.now()}.txt`
         link.href = url
-        link.click()
+        link.click()*/
 
         const jsonString = JSON.stringify(jsonLog, null, 2)
         const jsonBlob = new Blob([jsonString], { type: 'application/json' })
-        const jsonUrl = URL.createObjectURL(jsonBlob)
+        /*const jsonUrl = URL.createObjectURL(jsonBlob)
         const jsonLink = document.createElement('a')
         jsonLink.download = `${Date.now()}.json`
         jsonLink.href = jsonUrl
-        jsonLink.click()
+        jsonLink.click()*/
+
+        uploadFile(blob, `${Date.now()}.txt`)
+        uploadFile(jsonBlob, `${Date.now()}.json`)
+      }
+
+      const uploadFile = async (file, fileName) => {
+        const formData = new FormData()
+        formData.append('file', file, fileName)
+        const response = await fetch (`${process.env.REACT_APP_API_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        })
       }
      
 
