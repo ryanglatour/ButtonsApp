@@ -5,6 +5,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+const router = require('./routes')
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -23,6 +25,7 @@ app.use((req, res, next) =>
   next();
 });
 
+app.use('/api', router)
 
 app.listen(process.env.PORT); // start Node + Express server on port 5000
 console.log("listening on " + process.env.PORT)
