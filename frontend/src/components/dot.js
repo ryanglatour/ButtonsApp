@@ -14,6 +14,7 @@ const Dot = ({positionX, positionY, correct, index, onClick}) => {
     return(
         <div>
             <img src={selectedDot === index ? outline : green}
+            onClick={onClick}
             alt="green" 
             style={{
                 position: 'absolute',

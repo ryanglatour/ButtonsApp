@@ -4,7 +4,7 @@ import Stopwatch from '../components/stopwatch'
 import Survey from '../components/survey'
 import { ExperimentProvider, useExperiment } from '../context/experimentContext'
 import red from '../images/redcircle.png'
-import IDModal from '../components/idmodal'
+import { useNavigate } from "react-router-dom"
 
 function Game() {
     const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot, id} = useExperiment()
@@ -22,6 +22,8 @@ function Game() {
     const [timeClickNext2, setTimeClickNext2] = useState(null)
     const [confidenceSelected, setConfidenceSelected] = useState(null)
     const [isCorrect, setIsCorrect] = useState(null)
+
+    const navigate = useNavigate()
 
     console.log(process.env.REACT_APP_API_URL)
 
@@ -284,6 +286,7 @@ function Game() {
           body: formData
         })
       }
+
      
 
     return (
@@ -320,7 +323,6 @@ function Game() {
                   />}
                 {dots}
                 {survey}
-                <IDModal></IDModal>
             </div>
         </div>
     );
