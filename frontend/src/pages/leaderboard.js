@@ -6,7 +6,7 @@ import { useExperiment } from '../context/experimentContext'
 Chart.register(...registerables);
 
 function Leaderboard() {
-    const {trials, time, correct } = useExperiment()
+    const {id, trials, time, correct } = useExperiment()
     const [chartData, setChartData] = useState({
         datasets: [
           {
@@ -60,8 +60,32 @@ function Leaderboard() {
     return formattedData
   }
 
+  const updateLeaderboard = async (avg_time, accuracy) => {
+    try{
+        const entryData = {
+            user_id: id,
+            avg_guess_time: avg_time,
+            accuracy: accuracy
+        }
+        const response = await fetch (`${process.env.REACT_APP_API_URL}/api/addToLeaderboard`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Set the Content-Type header
+            },
+            body: JSON.stringify(entryData),
+        })
+
+        if (response.ok) return 1
+        else throw Error(response.statusText)
+    }
+    catch(error) {
+        console.log(error.message)
+    }
+    
+  }
+
   useEffect(() => {
-    const setupChart = async () => {
+    const setupChart = async (avg_time, accuracy) => {
         const data = await getData()
         setChartData({
             datasets: [
@@ -72,15 +96,19 @@ function Leaderboard() {
               },
               {
                 label: 'You',
-                data: [[null]],
+                data: [[avg_time, accuracy]],
                 backgroundColor: 'rgba(255,0,0,1)', // Different color for the current user
               }
             ],
           });
           console.log(data)
           console.log([1,1])
+          await updateLeaderboard(avg_time, accuracy)
     }
-    setupChart()
+    const avg_time = (time / 1000) /trials
+    const accuracy = (correct/trials) * 100
+    setupChart(avg_time, accuracy)
+    
   }, [])
 
   return (

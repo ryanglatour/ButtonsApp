@@ -38,6 +38,8 @@ function Game() {
             else {
               updateLog("end experiment")
               generateReport()
+              timeSet(timeSelected - timeStart)
+              navigate('/leaderboard')
             }
             setPractice(false)
             setDots([])
@@ -163,6 +165,10 @@ function Game() {
           setIsCorrect(closestDot.props.correct)
           //pause()
           updateLog(`user clicked: (${clickX}, ${clickY}), selecting (${closestDot.props.positionX.toFixed(2)}, ${closestDot.props.positionY.toFixed(2)})`)
+          if (!practice) { 
+            trialSet(trials + 1)
+            if (closestDot.props.correct) correctSet(correct + 1)
+          }
         }
       };
 

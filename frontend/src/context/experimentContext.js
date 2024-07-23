@@ -26,7 +26,7 @@ export const ExperimentProvider = ({ children }) => {
 
   const trialSet = (trials) => setTrials(trials)
   const timeSet = (time) => setTime(time)
-  const correctSet = (correct) = setCorrect(correct)
+  const correctSet = (correct) => setCorrect(correct)
 
   return (
     <ExperimentContext.Provider value={{
