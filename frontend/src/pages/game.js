@@ -7,7 +7,10 @@ import red from '../images/redcircle.png'
 import { useNavigate } from "react-router-dom"
 
 function Game() {
-    const { activeExperiment, startExperiment, resetExperiment, paused, pause, unpause, selectedDot, setSelectedDot, id} = useExperiment()
+    const { activeExperiment, startExperiment, resetExperiment,
+      paused, pause, unpause,
+      selectedDot, setSelectedDot, id,
+      trials, trialSet, time, timeSet, correct, correctSet} = useExperiment()
     const [dots, setDots] = useState([])
     const [survey, setSurvey] = useState([])
     const [practice, setPractice] = useState(true)

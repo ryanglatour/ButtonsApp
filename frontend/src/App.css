@@ -151,3 +151,9 @@
   background-color: #0056b3;
 }
 
+
+.leaderboard-container {
+  width: 50%;
+  height: 50%;
+  margin: auto;
+}
