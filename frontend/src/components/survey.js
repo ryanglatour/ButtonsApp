@@ -8,6 +8,19 @@ const Survey = ({onClick}) => {
         onClick(value);
     };
 
+    const handleNext = () => {
+        //emulate spacebar
+        const event = new KeyboardEvent('keydown', {
+            key: ' ',
+            code: 'Space',
+            keyCode: 32,
+            which: 32,
+            bubbles: true,
+          });
+      
+          document.dispatchEvent(event);
+    }
+
     return (
         <div className="survey-container">
             <h3>How confident are you in the correctness of your answer?</h3>
@@ -58,6 +71,9 @@ const Survey = ({onClick}) => {
                     <label>Certainly right</label>
                 </div>
             </div>
+
+            {process.env.REACT_APP_TOUCHSCREEN === 'false' && <button className='survey-next-button'
+                onClick={()=> handleNext()}>Next</button>}
         </div>
     )
 }

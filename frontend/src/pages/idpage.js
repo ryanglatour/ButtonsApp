@@ -9,7 +9,7 @@ function IDPage () {
 
     useEffect(() => {
         console.log(process.env.REACT_APP_TOUCHSCREEN)
-        if (id && process.env.REACT_APP_TOUCHSCREEN === 1) navigate("/calibrate")
+        if (id && process.env.REACT_APP_TOUCHSCREEN === 'true') navigate("/calibrate")
         else if (id) navigate("/game")
       }, [id])
 
