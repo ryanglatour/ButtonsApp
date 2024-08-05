@@ -25,6 +25,7 @@ function Game() {
     const [timeClickNext2, setTimeClickNext2] = useState(null)
     const [confidenceSelected, setConfidenceSelected] = useState(null)
     const [isCorrect, setIsCorrect] = useState(null)
+    const [done, setDone] = useState(false)
 
     const navigate = useNavigate()
 
@@ -38,9 +39,9 @@ function Game() {
             }
             else {
               updateLog("end experiment")
-              generateReport()
+              
               timeSet(timeSelected - timeStart)
-              navigate('/leaderboard')
+              
             }
             setPractice(false)
             setDots([])
@@ -52,10 +53,11 @@ function Game() {
         else { // Start experiment
             if (practice)
               updateLog("start practice")
-            else updateLog("start experiment")
-            //setTimeout(() => {
-              placeDots(); // This will trigger the second render and useEffect call
-           // }, 0); // Setting a timeout with 0 ms delay to ensure the state update is separated
+            else updateLog("start experiment") 
+
+            setTimeout(() => {
+              placeDots(); // This will run on next even loop
+            }, 0);
             startExperiment()
             unpause()
             setTimeStart(Date.now())
@@ -110,7 +112,7 @@ function Game() {
         let closestDistance = 100000
         let pointString = ""
         dotPositions.forEach ((dot, index) => {
-            pointString += `(${dot.positionX.toFixed(2)}, ${dot.positionY.toFixed(2)}), `
+            pointString += `(${xs[index].toFixed(2)}, ${ys[index].toFixed(2)}), `
             let distance = Math.sqrt(
                 Math.pow(dot.positionX - windowCenterX, 2) + Math.pow(dot.positionY - windowCenterY, 2)
             );
@@ -135,6 +137,8 @@ function Game() {
             correct = {pos.correct}
             distance = {pos.distance}
             index = {index}
+            calcX = {xs[index]}
+            calcY = {ys[index]}
             //onClick={() => dotClicked(index, pos.correct)}
           />
         ))
@@ -210,9 +214,7 @@ function Game() {
                 setTimeClickNext2(Date.now())
                 updateLog("user clicked next")
                 unpause()
-                setTimeout(() => {
-                  placeDots(1); // This will trigger the second render and useEffect call
-                }, 0); // Setting a timeout with 0 ms delay to ensure the state update is separated
+
                 setSurvey([])
                 setSelectedDot(null)
                 setIsCorrect(null)
@@ -220,7 +222,12 @@ function Game() {
                 // Handle trial limit
                 //console.log(practice + " " + activeExperiment + " " + trials + " " + process.env.REACT_APP_MAX_NUMBER_PRACTICE)
                 if (practice && trials >= process.env.REACT_APP_MAX_NUMBER_PRACTICE) startendExperiment()
-                if (!practice && trials >= process.env.REACT_APP_MAX_NUMBER_EXPERIMENT) startendExperiment()
+                else if (!practice && trials >= process.env.REACT_APP_MAX_NUMBER_EXPERIMENT) startendExperiment()
+                else {
+                  setTimeout(() => {
+                    placeDots(); // This will run on next even loop
+                  }, 0);
+                }
             }
             
           }
@@ -238,7 +245,7 @@ function Game() {
         let randomPoints = []
         let distances = []
         dots.forEach ((dot, index) => {
-          randomPoints.push([parseFloat(dot.props.positionX.toFixed(2)), parseFloat(dot.props.positionY.toFixed(2))])
+          randomPoints.push([parseFloat(dot.props.calcX.toFixed(2)), parseFloat(dot.props.calcY.toFixed(2))])
           distances.push(parseFloat(dot.props.distance.toFixed(2)))
         })
         
@@ -261,6 +268,7 @@ function Game() {
           timeClickNext2: timeClickNext2
         }
         setJsonLog((prevObjects) => [...prevObjects, newObject])
+        if (message.includes('end experiment')) setDone(true)
       };
 
       // JSON use effects
@@ -299,6 +307,14 @@ function Game() {
           body: formData
         })
       }
+
+      // Generate report when experiment is over
+      useEffect(() => {
+        if(done) {
+          generateReport()
+          navigate('/leaderboard')
+        }
+      }, [done])
 
 
       // Mouse tracking
