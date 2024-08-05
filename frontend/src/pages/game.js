@@ -28,13 +28,14 @@ function Game() {
 
     const navigate = useNavigate()
 
-    console.log(process.env.REACT_APP_API_URL)
+    //console.log(process.env.REACT_APP_API_URL)
 
     const startendExperiment = () => {
-        console.log(activeExperiment)
+        //console.log(activeExperiment)
         if (activeExperiment) { // Stop experiment
-            if (practice)
+            if (practice) {
               updateLog("end practice")
+            }
             else {
               updateLog("end experiment")
               generateReport()
@@ -47,18 +48,18 @@ function Game() {
             pause()
             setSurvey([])
             setSelectedDot(null)
-            
         }
         else { // Start experiment
             if (practice)
               updateLog("start practice")
             else updateLog("start experiment")
-            setTimeout(() => {
+            //setTimeout(() => {
               placeDots(); // This will trigger the second render and useEffect call
-            }, 0); // Setting a timeout with 0 ms delay to ensure the state update is separated
+           // }, 0); // Setting a timeout with 0 ms delay to ensure the state update is separated
             startExperiment()
             unpause()
             setTimeStart(Date.now())
+            trialSet(0)
         }
     }
 
@@ -69,8 +70,9 @@ function Game() {
         const dotPositions = [];
         const dotCount = 5
         
-        const radMin = (1/3)
-        const radMax = (3/4)
+        const radMin = eval(process.env.REACT_APP_RAD_MIN)
+        const radMax = eval(process.env.REACT_APP_RAD_MAX)
+        
         const uniform = (radMin, radMax) => Math.random() * (radMax - radMin) + radMin;
         const rads = Array.from({ length: dotCount }, () => uniform(4, 10))
         const angStepSize = 2 * Math.PI / dotCount;
@@ -88,8 +90,8 @@ function Game() {
         const xs = pts.map(pt => pt[0]);
         const ys = pts.map(pt => pt[1]);
 
-        console.log(rads);
-        console.log(angs.map(a => a * 180 / Math.PI));
+        //console.log(rads);
+        //console.log(angs.map(a => a * 180 / Math.PI));
 
         const offset = (1/70) * Math.sqrt(
             Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2)
@@ -123,7 +125,7 @@ function Game() {
         updateLog(`generate random points: ${pointString}`)
         dotPositions[closestDot].correct = true
         
-        console.log(dotPositions)
+        //console.log(dotPositions)
         
         const newDots = dotPositions.map((pos, index) => (
           <Dot 
@@ -165,10 +167,10 @@ function Game() {
           setIsCorrect(closestDot.props.correct)
           //pause()
           updateLog(`user clicked: (${clickX}, ${clickY}), selecting (${closestDot.props.positionX.toFixed(2)}, ${closestDot.props.positionY.toFixed(2)})`)
-          if (!practice) { 
+          //if (!practice) { 
             trialSet(trials + 1)
-            if (closestDot.props.correct) correctSet(correct + 1)
-          }
+            if (closestDot.props.correct && !practice) correctSet(correct + 1)
+          //}
         }
       };
 
@@ -198,7 +200,7 @@ function Game() {
                 setTimeClickNext1(Date.now())
                 updateLog("user clicked next")
                 pause()
-                console.log(dots[selectedDot].props.correct)
+                //console.log(dots[selectedDot].props.correct)
                 setDots([])
                 const survey = <Survey onClick={surveyClicked}/>
                 setSurvey(survey)
@@ -214,6 +216,11 @@ function Game() {
                 setSurvey([])
                 setSelectedDot(null)
                 setIsCorrect(null)
+
+                // Handle trial limit
+                //console.log(practice + " " + activeExperiment + " " + trials + " " + process.env.REACT_APP_MAX_NUMBER_PRACTICE)
+                if (practice && trials >= process.env.REACT_APP_MAX_NUMBER_PRACTICE) startendExperiment()
+                if (!practice && trials >= process.env.REACT_APP_MAX_NUMBER_EXPERIMENT) startendExperiment()
             }
             
           }
@@ -268,20 +275,17 @@ function Game() {
 
       const generateReport = () => {
         const blob = new Blob([log], { type: "text/plain" })
-        /*const url = URL.createObjectURL(blob)
-        const link = document.createElement("a")
-
-        link.download = `${Date.now()}.txt`
-        link.href = url
-        link.click()*/
 
         const jsonString = JSON.stringify(jsonLog, null, 2)
         const jsonBlob = new Blob([jsonString], { type: 'application/json' })
-        /*const jsonUrl = URL.createObjectURL(jsonBlob)
-        const jsonLink = document.createElement('a')
-        jsonLink.download = `${Date.now()}.json`
-        jsonLink.href = jsonUrl
-        jsonLink.click()*/
+        
+        const test = process.env.REACT_APP_TOUCHSCREEN
+        if (process.env.REACT_APP_TOUCHSCREEN === 'false') {
+          console.log(true)
+          const mouseBlob = new Blob([mouseMovements], {type:"text/plain"})
+          uploadFile(mouseBlob, `${Date.now()}mouse.txt`)
+        }
+        else console.log(false)
 
         uploadFile(blob, `${Date.now()}.txt`)
         uploadFile(jsonBlob, `${Date.now()}.json`)
@@ -296,7 +300,25 @@ function Game() {
         })
       }
 
-     
+
+      // Mouse tracking
+      const [mouseMovements, setMouseMovements] = useState([])
+      useEffect(() => {
+          const update = (e) => {
+
+            setMouseMovements((prevMovements) =>
+              prevMovements + `${Date.now()}: ${e.clientX}, ${e.clientY}\n`
+            )
+
+          }
+          window.addEventListener('mousemove', update)
+          return () => {
+            window.removeEventListener('mousemove', update)
+          }
+        },
+        []
+      )
+
 
     return (
         <div>

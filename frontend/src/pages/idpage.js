@@ -8,7 +8,9 @@ function IDPage () {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (id) navigate("/calibrate")
+        console.log(process.env.REACT_APP_TOUCHSCREEN)
+        if (id && process.env.REACT_APP_TOUCHSCREEN === 1) navigate("/calibrate")
+        else if (id) navigate("/game")
       }, [id])
 
     return (

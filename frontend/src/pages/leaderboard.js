@@ -107,6 +107,8 @@ function Leaderboard() {
     }
     const avg_time = (time / 1000) /trials
     const accuracy = (correct/trials) * 100
+    console.log(trials + " " + correct)
+    console.log(avg_time + " " + accuracy)
     setupChart(avg_time, accuracy)
     
   }, [])

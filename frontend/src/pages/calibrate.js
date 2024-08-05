@@ -45,7 +45,10 @@ function Calibrate () {
     }
 
     useEffect(() => {
-        if (next > 12) navigate("/game")
+        if (next > 12) {
+            document.body.style.overflow = "auto";
+             navigate("/game")
+        }
         else
             selectDots()
       }, [next])
@@ -53,7 +56,7 @@ function Calibrate () {
       useEffect(() => {
         document.body.style.overflow = "hidden";
         return () => {
-            document.body.style.overflow = "scroll"
+            document.body.style.overflow = "auto"
         };
     }, []);
     
