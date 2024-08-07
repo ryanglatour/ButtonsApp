@@ -23,20 +23,21 @@ function Leaderboard() {
       });
 
   const chartOptions = {
+    responsive: true,
     scales: {
       x: {
+        max: 10, 
+        suggestedMin: 0,
         type: 'linear',
-        position: 'bottom',
-        min: 0,
-        max: 10,
+        position: 'bottom',  
         title: {
           display: true,
           text: 'Average Guess Time (s)',
         },
       },
       y: {
-        min: 0,
-        max: 100,
+        suggestedMax: 100,
+        suggestedMin: 0,
         title: {
           display: true,
           text: 'Accuracy (%)',

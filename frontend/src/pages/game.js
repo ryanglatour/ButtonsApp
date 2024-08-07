@@ -70,7 +70,7 @@ function Game() {
         const windowCenterX = window.innerWidth / 2
         const windowCenterY = window.innerHeight / 2
         const dotPositions = [];
-        const dotCount = 5
+        const dotCount = process.env.REACT_APP_DOTS || 5
         
         const radMin = eval(process.env.REACT_APP_RAD_MIN)
         const radMax = eval(process.env.REACT_APP_RAD_MAX)
