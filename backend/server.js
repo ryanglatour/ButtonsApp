@@ -27,5 +27,6 @@ app.use((req, res, next) =>
 
 app.use('/api', router)
 
-app.listen(process.env.PORT); // start Node + Express server on port 5000
-console.log("listening on " + process.env.PORT)
+const port = process.env.PORT || 5000
+app.listen(port); // start Node + Express server on port 5000
+console.log("listening on " + port)

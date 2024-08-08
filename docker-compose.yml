@@ -1,30 +1,44 @@
 version: '3.8'
 
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: dotsurvey-backend
-    container_name: dotsurvey-backend-container
-    volumes:
-      - ./backend:/app
-      - ./frontend/build:/app/public
-    ports:
-      - "5000:5000"
-    command: node server.js
-  
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: dotsurvey-frontend
-    container_name: dotsurvey-frontend-container
-    volumes:
-      - ./frontend:/app
-    command: npm start
-    depends_on:
-      - backend
+    build: ./frontend
+    container_name: button-frontend
     ports:
       - "3000:3000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    networks:
+      - button-net
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_MAX_NUMBER_PRACTICE=2
+      - REACT_APP_MAX_NUMBER_EXPERIMENT=3
+      - REACT_APP_TOUCHSCREEN=true
+      - REACT_APP_RAD_MIN=1/3
+      - REACT_APP_RAD_MAX=3/4
+      - REACT_APP_DOTS=3
+
+  backend:
+    build: ./backend
+    container_name: button-backend
+    volumes:
+      - sqlite_data:/app/sqlite
+    restart: always
+    ports:
+      - "5000:5000"
+    networks:
+      - button-net
+    environment:
+      - PORT=5000
+  
+networks:
+  button-net:
+    driver: bridge
+
+volumes:
+  sqlite_data:
+
 
