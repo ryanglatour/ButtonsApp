@@ -8,7 +8,7 @@ const fs = require('fs');
       cb(null, `${file.originalname}`);
     },
     destination: (req, file, cb) => {
-        const destPath = path.join(__dirname, '../Files/');
+        const destPath = path.join(__dirname, './Files/');
         fs.mkdirSync(destPath, { recursive: true }); // Ensure directory exists
         cb(null, destPath);
     }
