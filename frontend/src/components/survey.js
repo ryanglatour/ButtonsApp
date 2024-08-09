@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const Survey = ({onClick}) => {
+const Survey = ({onClick, onNext}) => {
     const [selected, setSelected] = useState(null);
 
     const handleClick = (value) => {
@@ -9,16 +9,7 @@ const Survey = ({onClick}) => {
     };
 
     const handleNext = () => {
-        //emulate spacebar
-        const event = new KeyboardEvent('keydown', {
-            key: ' ',
-            code: 'Space',
-            keyCode: 32,
-            which: 32,
-            bubbles: true,
-          });
-      
-          document.dispatchEvent(event);
+        onNext()
     }
 
     return (

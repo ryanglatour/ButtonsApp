@@ -206,12 +206,28 @@ function Game() {
                 pause()
                 //console.log(dots[selectedDot].props.correct)
                 setDots([])
-                const survey = <Survey onClick={surveyClicked}/>
+                const survey = <Survey onClick={surveyClicked} onNext={secondNext}/>
                 setSurvey(survey)
                 
             }
             else {
+                if (process.env.REACT_APP_TOUCHSCREEN === 'true') secondNext()
+            }
+            
+          }
+        };
+        window.addEventListener('keydown', handleEsc);
+    
+        return () => {
+          window.removeEventListener('keydown', handleEsc);
+        };
+      }, [activeExperiment, paused, selectedDot]);
+
+
+
+      const secondNext = () => {
                 setTimeClickNext2(Date.now())
+              
                 updateLog("user clicked next")
                 unpause()
 
@@ -228,17 +244,7 @@ function Game() {
                     placeDots(); // This will run on next even loop
                   }, 0);
                 }
-            }
-            
-          }
-        };
-        window.addEventListener('keydown', handleEsc);
-    
-        return () => {
-          window.removeEventListener('keydown', handleEsc);
-        };
-      }, [activeExperiment, paused, selectedDot]);
-
+      }
 
 
       const handleAddJsonObject = (message) => {
