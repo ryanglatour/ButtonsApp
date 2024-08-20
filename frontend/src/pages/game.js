@@ -68,7 +68,7 @@ function Game() {
     const placeDots = () => {
         // Create area and calculate positions
         const windowCenterX = window.innerWidth / 2
-        const windowCenterY = window.innerHeight / 2
+        const windowCenterY = window.innerHeight / 3
         const dotPositions = [];
         const dotCount = process.env.REACT_APP_DOTS || 5
         
@@ -152,7 +152,7 @@ function Game() {
         let closestDot = null;
         let minDistance = Infinity;
 
-        if (clickY < 75) return
+        //if (clickY < 75) return
     
         dots.forEach(dot => {
           const dotX = dot.props.positionX + 25; // Adjust for center of the dot
@@ -181,9 +181,11 @@ function Game() {
       useEffect(() => {
         if (activeExperiment) {
           window.addEventListener('click', handleCanvasClick);
+          window.addEventListener('touchstart', handleCanvasClick)
         }
         return () => {
           window.removeEventListener('click', handleCanvasClick);
+          window.removeEventListener('touchstart', handleCanvasClick)
         };
       }, [dots, activeExperiment, selectedDot]);
 
@@ -201,17 +203,12 @@ function Game() {
               //console.log(selectedDot)
             }
             else if (!paused) {
-                setTimeClickNext1(Date.now())
-                updateLog("user clicked next")
-                pause()
-                //console.log(dots[selectedDot].props.correct)
-                setDots([])
-                const survey = <Survey onClick={surveyClicked} onNext={secondNext}/>
-                setSurvey(survey)
-                
+                if (process.env.REACT_APP_TOUCHSCREEN === 'true') firstNext()
             }
-            else {
+            else if (confidenceSelected != null) {
+                //console.log(confidenceSelected)
                 if (process.env.REACT_APP_TOUCHSCREEN === 'true') secondNext()
+                setConfidenceSelected(null)
             }
             
           }
@@ -221,9 +218,17 @@ function Game() {
         return () => {
           window.removeEventListener('keydown', handleEsc);
         };
-      }, [activeExperiment, paused, selectedDot]);
+      }, [activeExperiment, paused, selectedDot, confidenceSelected]);
 
-
+      const firstNext = () => {
+          setTimeClickNext1(Date.now())
+          updateLog("user clicked next")
+          pause()
+          //console.log(dots[selectedDot].props.correct)
+          setDots([])
+          const survey = <Survey onClick={surveyClicked} onNext={secondNext}/>
+          setSurvey(survey)
+      }
 
       const secondNext = () => {
                 setTimeClickNext2(Date.now())
@@ -299,7 +304,10 @@ function Game() {
           const mouseBlob = new Blob([mouseMovements], {type:"text/plain"})
           uploadFile(mouseBlob, `${Date.now()}mouse.txt`)
         }
-        else console.log(false)
+        else {
+          const touchBlob = new Blob([touchTracking], {type:"text/plain"})
+          uploadFile(touchBlob, `${Date.now()}touch.txt`)
+        }
 
         uploadFile(blob, `${Date.now()}.txt`)
         uploadFile(jsonBlob, `${Date.now()}.json`)
@@ -341,6 +349,26 @@ function Game() {
         []
       )
 
+    // Touch tracking
+    const [touchTracking, setTouchTracking] = useState([])
+    useEffect(() => {
+        const update = (e) => {
+          const touch = e.touches[0]
+
+          setTouchTracking((prevTouches) =>
+            prevTouches + `${Date.now()}: ${touch.clientX}, ${touch.clientY}\n`
+          )
+
+        }
+        window.addEventListener('touchstart', update)
+        return () => {
+          window.removeEventListener('touchstart', update)
+        }
+      },
+      []
+    )
+
+
 
     return (
         <div>
@@ -369,11 +397,13 @@ function Game() {
                 style={{
                     position: 'absolute',
                     left: `${(window.innerWidth / 2) - 25}px`,
-                    top: `${(window.innerHeight / 2) - 25}px`,
+                    top: `${(window.innerHeight / 3) - 25}px`,
                     height: '50px',
                     width: '50px'
                   }}
                   />}
+                {process.env.REACT_APP_TOUCHSCREEN === 'false' && selectedDot != null && !paused && <button className='game-next-button'
+                onClick={()=> firstNext()}>Next</button>}
                 {dots}
                 {survey}
             </div>
