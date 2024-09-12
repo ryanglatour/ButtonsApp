@@ -96,7 +96,7 @@
 .game-next-button {
   margin: 0;
   position: absolute;
-  top: 100%;
+  top: 90%;
   left: 50%;
   -ms-transform: translate(-50%, -100%);
   transform: translate(-50%, -100%);
