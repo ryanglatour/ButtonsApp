@@ -318,7 +318,8 @@ function Game() {
         formData.append('file', file, fileName)
         const response = await fetch (`${process.env.REACT_APP_API_URL}/api/upload`, {
           method: 'POST',
-          body: formData
+          body: formData,
+          mode: 'no-cors'
         })
       }
 

@@ -48,17 +48,25 @@ function Leaderboard() {
 
   const getData = async () => {
     const response = await fetch (`${process.env.REACT_APP_API_URL}/api/getLeaderboard`, {
-        method: 'GET'
+        method: 'GET',
+        mode: 'no-cors'
     })
 
-    const json = await response.json()
+    /*const json = await response.json()
 
     const formattedData = json.data.map(item => ({
         x: item.avg_guess_time,
         y: item.accuracy,
       }))
+    */
 
-    return formattedData
+    const temp  = [
+      {
+        avg_guess_time: 5,
+        accuracy: 90
+      }
+    ]
+    return temp
   }
 
   const updateLeaderboard = async (avg_time, accuracy) => {
@@ -74,6 +82,7 @@ function Leaderboard() {
                 'Content-Type': 'application/json', // Set the Content-Type header
             },
             body: JSON.stringify(entryData),
+            mode: 'no-cors'
         })
 
         if (response.ok) return 1
