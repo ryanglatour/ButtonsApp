@@ -1,8 +1,9 @@
 const db = require('./sqlite/database');
 
 exports.getLeaderboard = async (req, res) => {
-    const sql = 'SELECT * FROM leaderboard'
-    db.all(sql, [], (err, rows) => {
+    const { tag } = req.body
+    const sql = `SELECT * FROM leaderboard WHERE tag = ?`
+    db.all(sql, [tag], (err, rows) => {
         if (err) {
           res.status(400).json({ error: err.message });
           return;
@@ -12,9 +13,9 @@ exports.getLeaderboard = async (req, res) => {
 }
 
 exports.addToLeaderboard = async (req, res) => {
-    const { user_id, avg_guess_time, accuracy } = req.body;
-    const sql = `INSERT INTO leaderboard (user_id, avg_guess_time, accuracy) VALUES (?, ?, ?)`;
-    const params = [user_id, avg_guess_time, accuracy];
+    const { user_id, avg_guess_time, accuracy, tag } = req.body;
+    const sql = `INSERT INTO leaderboard (user_id, avg_guess_time, accuracy, tag) VALUES (?, ?, ?, ?)`;
+    const params = [user_id, avg_guess_time, accuracy, tag];
 
     db.run(sql, params, function (err) {
         if (err) {
@@ -27,7 +28,8 @@ exports.addToLeaderboard = async (req, res) => {
                 id: this.lastID,
                 user_id,
                 avg_guess_time,
-                accuracy
+                accuracy,
+                tag
             }
         });
     });

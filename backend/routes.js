@@ -5,7 +5,7 @@ const leaderboard = require('./leaderboardcontroller')
 
 router.post('/upload', logsUpload.uploadFile);
 
-router.get('/getLeaderboard', leaderboard.getLeaderboard)
+router.post('/getLeaderboard', leaderboard.getLeaderboard)
 
 router.post('/addToLeaderboard', leaderboard.addToLeaderboard)
 

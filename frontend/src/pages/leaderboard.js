@@ -47,8 +47,15 @@ function Leaderboard() {
   };
 
   const getData = async () => {
+    const entryData = {
+      tag: process.env.REACT_APP_EXPERIMENT_TAG
+    }
     const response = await fetch (`${process.env.REACT_APP_API_URL}/api/getLeaderboard`, {
-        method: 'GET'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Set the Content-Type header
+        },
+        body: JSON.stringify(entryData),
     })
 
     const json = await response.json()
@@ -66,7 +73,8 @@ function Leaderboard() {
         const entryData = {
             user_id: id,
             avg_guess_time: avg_time,
-            accuracy: accuracy
+            accuracy: accuracy,
+            tag: process.env.REACT_APP_EXPERIMENT_TAG
         }
         const response = await fetch (`${process.env.REACT_APP_API_URL}/api/addToLeaderboard`, {
             method: 'POST',
