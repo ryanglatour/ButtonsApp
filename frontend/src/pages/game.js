@@ -315,8 +315,11 @@ function Game() {
 
       const uploadFile = async (file, fileName) => {
         const formData = new FormData()
+        formData.append('user_id', id)
+        formData.append('title', fileName)
+        formData.append('tag', process.env.REACT_APP_EXPERIMENT_TAG)
         formData.append('file', file, fileName)
-        const response = await fetch (`${process.env.REACT_APP_API_URL}/api/upload`, {
+        const response = await fetch (`${process.env.REACT_APP_API_URL}/api/addDocument`, {
           method: 'POST',
           body: formData
         })
