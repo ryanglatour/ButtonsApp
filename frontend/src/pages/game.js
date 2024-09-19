@@ -302,15 +302,15 @@ function Game() {
         if (process.env.REACT_APP_TOUCHSCREEN === 'false') {
           console.log(true)
           const mouseBlob = new Blob([mouseMovements], {type:"text/plain"})
-          uploadFile(mouseBlob, `${Date.now()}mouse.txt`)
+          uploadFile(mouseBlob, `${Date.now()}_mouse_${REACT_APP_EXPERIMENT_TAG}.txt`)
         }
         else {
           const touchBlob = new Blob([touchTracking], {type:"text/plain"})
-          uploadFile(touchBlob, `${Date.now()}touch.txt`)
+          uploadFile(touchBlob, `${Date.now()}_touch_${REACT_APP_EXPERIMENT_TAG}.txt`)
         }
 
-        uploadFile(blob, `${Date.now()}.txt`)
-        uploadFile(jsonBlob, `${Date.now()}.json`)
+        uploadFile(blob, `${Date.now()}_${REACT_APP_EXPERIMENT_TAG}.txt`)
+        uploadFile(jsonBlob, `${Date.now()}_${REACT_APP_EXPERIMENT_TAG}.json`)
       }
 
       const uploadFile = async (file, fileName) => {
@@ -329,9 +329,9 @@ function Game() {
       useEffect(() => {
         if(done) {
           generateReport()
-          if (process.env.REACT_APP_SHOW_LEADERBOARD == 'true') navigate('/leaderboard')
+          if (process.env.REACT_APP_SHOW_LEADERBOARD == 'false') uploadLeaderboard()
           else {
-            uploadLeaderboard()
+            navigate('/leaderboard')
           }
         }
       }, [done])
