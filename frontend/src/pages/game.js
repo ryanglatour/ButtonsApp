@@ -329,9 +329,41 @@ function Game() {
       useEffect(() => {
         if(done) {
           generateReport()
-          navigate('/leaderboard')
+          if (process.env.REACT_APP_SHOW_LEADERBOARD == 'true') navigate('/leaderboard')
+          else {
+            uploadLeaderboard()
+          }
         }
       }, [done])
+
+      
+      // Upload to leaderboard
+      const uploadLeaderboard = async() => {
+        const avg_time = (time / 1000) /trials
+        const accuracy = (correct/trials) * 100
+
+        try{
+          const entryData = {
+              user_id: id,
+              avg_guess_time: avg_time,
+              accuracy: accuracy,
+              tag: process.env.REACT_APP_EXPERIMENT_TAG
+          }
+          const response = await fetch (`${process.env.REACT_APP_API_URL}/api/addToLeaderboard`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json', // Set the Content-Type header
+              },
+              body: JSON.stringify(entryData),
+          })
+  
+          if (response.ok) return 1
+          else throw Error(response.statusText)
+        }
+        catch(error) {
+            console.log(error.message)
+        }
+      }
 
 
       // Mouse tracking
