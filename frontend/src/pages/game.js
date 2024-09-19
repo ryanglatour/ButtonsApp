@@ -302,15 +302,15 @@ function Game() {
         if (process.env.REACT_APP_TOUCHSCREEN === 'false') {
           console.log(true)
           const mouseBlob = new Blob([mouseMovements], {type:"text/plain"})
-          uploadFile(mouseBlob, `${Date.now()}_mouse_${REACT_APP_EXPERIMENT_TAG}.txt`)
+          uploadFile(mouseBlob, `${Date.now()}_mouse_${process.env.REACT_APP_EXPERIMENT_TAG}.txt`)
         }
         else {
           const touchBlob = new Blob([touchTracking], {type:"text/plain"})
-          uploadFile(touchBlob, `${Date.now()}_touch_${REACT_APP_EXPERIMENT_TAG}.txt`)
+          uploadFile(touchBlob, `${Date.now()}_touch_${process.env.REACT_APP_EXPERIMENT_TAG}.txt`)
         }
 
-        uploadFile(blob, `${Date.now()}_${REACT_APP_EXPERIMENT_TAG}.txt`)
-        uploadFile(jsonBlob, `${Date.now()}_${REACT_APP_EXPERIMENT_TAG}.json`)
+        uploadFile(blob, `${Date.now()}_${process.env.REACT_APP_EXPERIMENT_TAG}.txt`)
+        uploadFile(jsonBlob, `${Date.now()}_${process.env.REACT_APP_EXPERIMENT_TAG}.json`)
       }
 
       const uploadFile = async (file, fileName) => {
