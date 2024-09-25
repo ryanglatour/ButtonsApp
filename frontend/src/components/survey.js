@@ -63,7 +63,7 @@ const Survey = ({onClick, onNext}) => {
                 </div>
             </div>
 
-            {selected && process.env.REACT_APP_TOUCHSCREEN === 'false' && <button className='game-next-button'
+            {selected && process.env.REACT_APP_SHOW_NEXT === 'true' && <button className='game-next-button'
                 onClick={()=> handleNext()}>Next</button>}
         </div>
     )

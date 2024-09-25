@@ -4,11 +4,14 @@ import IDModal from '../components/idmodal'
 import { ExperimentProvider, useExperiment } from '../context/experimentContext'
 
 function IDPage () {
-    const {id} = useExperiment()
+    const { id, setId, enterId} = useExperiment()
     const navigate = useNavigate()
 
     useEffect(() => {
         console.log(process.env.REACT_APP_TOUCHSCREEN)
+        if (process.env.REACT_APP_ID_ENABLED === 'false') {
+            setId('N/A')
+        }
         if (id && process.env.REACT_APP_TOUCHSCREEN === 'true') navigate("/calibrate")
         else if (id) navigate("/game")
       }, [id])

@@ -26,6 +26,7 @@ function Game() {
     const [confidenceSelected, setConfidenceSelected] = useState(null)
     const [isCorrect, setIsCorrect] = useState(null)
     const [done, setDone] = useState(false)
+    const [hideButton, setHideButton] = useState(false)
 
     const navigate = useNavigate()
 
@@ -39,7 +40,7 @@ function Game() {
             }
             else {
               updateLog("end experiment")
-              
+              setHideButton(true)
               timeSet(timeSelected - timeStart)
               
             }
@@ -198,16 +199,16 @@ function Game() {
     // detect space bar
     useEffect(() => {
         const handleEsc = (event) => {
-           if (event.key === ' ' && activeExperiment) {
+           if (event.key === process.env.REACT_APP_NEXT_KEY && activeExperiment && process.env.REACT_APP_USE_KEYBOARD === 'true') {
             if (selectedDot == null) {
               //console.log(selectedDot)
             }
             else if (!paused) {
-                if (process.env.REACT_APP_TOUCHSCREEN === 'true') firstNext()
+                if (process.env.REACT_APP_SHOW_NEXT === 'false') firstNext()
             }
             else if (confidenceSelected != null) {
                 //console.log(confidenceSelected)
-                if (process.env.REACT_APP_TOUCHSCREEN === 'true') secondNext()
+                if (process.env.REACT_APP_SHOW_NEXT === 'false') secondNext()
                 setConfidenceSelected(null)
             }
             
@@ -409,7 +410,7 @@ function Game() {
         <div>
           
             <nav className="navbar">
-                <button className="experiment-button" onClick = {startendExperiment}
+                {!hideButton && <button className="experiment-button" onClick = {startendExperiment}
                  style = {{backgroundColor: activeExperiment ? 'red' : 'green'}}>
                     {(activeExperiment && practice) 
                     ? 'End Practice'
@@ -419,12 +420,16 @@ function Game() {
                     ? 'End Experiment'
                     : 'Start Experiment'
                   }
-                </button>
+                </button>}
 
-                <div className="stopwatch">
+                {!hideButton && <div className="stopwatch">
                     Timer: {<Stopwatch/>}
-                </div>
+                </div>}
             </nav>
+
+            {hideButton && <div className='centered'>
+              Thank you for your participation.
+            </div>}
 
             <div>
                 {!paused && activeExperiment && <img src = {red}
@@ -437,7 +442,7 @@ function Game() {
                     width: '50px'
                   }}
                   />}
-                {process.env.REACT_APP_TOUCHSCREEN === 'false' && selectedDot != null && !paused && <button className='game-next-button'
+                {process.env.REACT_APP_SHOW_NEXT === 'true' && selectedDot != null && !paused && <button className='game-next-button'
                 onClick={()=> firstNext()}>Next</button>}
                 {dots}
                 {survey}
