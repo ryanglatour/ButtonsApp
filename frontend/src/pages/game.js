@@ -199,16 +199,21 @@ function Game() {
     // detect space bar
     useEffect(() => {
         const handleEsc = (event) => {
-           if (event.key === process.env.REACT_APP_NEXT_KEY && activeExperiment && process.env.REACT_APP_USE_KEYBOARD === 'true') {
+          /*console.log(process.env.REACT_APP_NEXT_KEY)
+          console.log(event.key)
+          console.log(event.key === process.env.REACT_APP_NEXT_KEY)*/
+          const key = process.env.REACT_APP_NEXT_KEY || " ";
+           if (event.key === key && activeExperiment && process.env.REACT_APP_USE_KEYBOARD === 'true') {
+            
             if (selectedDot == null) {
               //console.log(selectedDot)
             }
             else if (!paused) {
-                if (process.env.REACT_APP_SHOW_NEXT === 'false') firstNext()
+                firstNext()
             }
             else if (confidenceSelected != null) {
                 //console.log(confidenceSelected)
-                if (process.env.REACT_APP_SHOW_NEXT === 'false') secondNext()
+                secondNext()
                 setConfidenceSelected(null)
             }
             
